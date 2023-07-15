@@ -4,7 +4,8 @@ import { Reader } from "../reader";
 import { Event } from "./event";
 
 export class EBM {
-    static readonly EVENT_TYPE = Buffer.from([0x02, 0x00, 0x00, 0x00]);
+    static readonly EVENT_MESSAGE_TYPE = Buffer.from([0x02, 0x00, 0x00, 0x00]);
+    static readonly EVENT_NOTIFICATION_TYPE = Buffer.from([0x03, 0x00, 0x00, 0x00]);
 
     private _events: Event[] = [];
     private _path: string;
@@ -35,7 +36,7 @@ export class EBM {
 
     readEvent() {
         const type = this._reader.peek(this._reader.cursor, this._reader.cursor + 4);
-        if(!type.equals(EBM.EVENT_TYPE))
+        if(!type.equals(EBM.EVENT_MESSAGE_TYPE) && !type.equals(EBM.EVENT_NOTIFICATION_TYPE))
             throw new Error("Invalid event type was acknowledged");
 
         const header = this._reader.consume(60);

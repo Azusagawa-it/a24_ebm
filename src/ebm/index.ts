@@ -58,7 +58,11 @@ export class EBM {
     }
 
     save(path: string) {
-        const buf = Buffer.alloc(this._reader.buffer.length);
+        const restOfBytes = this._reader.consume(this._reader.length);
+        let eventsLength = 0; for(const event of this._events)
+            eventsLength += event.length;
+
+        const buf = Buffer.alloc(4 + eventsLength + restOfBytes.length);
         buf.writeInt32LE(this._length);
 
         let offset = 4; for(const event of this._events) {
@@ -66,7 +70,7 @@ export class EBM {
             offset += event.length;
         }
 
-        this._reader.consume(this._reader.length).copy(buf, offset);
+        restOfBytes.copy(buf, offset);
         writeFileSync(path, buf);
     }
 }
